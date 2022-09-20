@@ -1,0 +1,136 @@
+openapi: 3.0.1
+info:
+  title: Partner Credentials Service
+  description: |-
+    This service provides ability to store and retrieve partner credential details.
+
+    This API service, allows partners to store fulfillment credential and to retrieve this information.
+  version: v1
+servers:
+  - url: http://localhost:8080/v1/partner/credential
+paths:
+  /api/partner/credential:
+    post:
+      tags:
+        - partner-credentials-controller
+      operationId: postPartnerCredentialDetails
+      description: |-
+        This endpoint allows partners credential details to be stored.
+
+        This will be either the full fulfillment payload or specific credential details.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PartnerCredentialRequest'
+            examples:
+              validPartnerCredentialRequest:
+                $ref: '#/components/examples/PartnerCredentialRequest'
+        required: true
+      responses:
+        201:
+          $ref: '#/components/responses/201Created'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        500:
+          $ref: '#/components/responses/500InternalServerError'
+
+  /v1/partner/credential/{customerId}:
+    get:
+      tags:
+        - partner-credential-controller
+      operationId: getPartnerCredentialData
+      description: |-
+        This endpoint allows partner credentials to be returned for a specific customerId, isvId.
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartnerCredentialResponse'
+              examples:
+                getPartnerCredentials:
+                  $ref: '#/components/examples/Valid_200_PartnerCredentialResponse'
+
+components:
+  schemas:
+    PartnerCredentialRequest:
+      required:
+        - isvId
+        - locationId
+        - tenetId
+        - vendorId
+        - accessToken
+        - refreshToken
+      type: object
+      properties:
+        isvId:
+          type: string
+        locationId:
+          type: string
+        tenetId:
+          type: string
+        vendorId:
+          type: string
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+
+    PartnerCredentialResponse:
+      required:
+        - isvId
+        - locationId
+        - tenetId
+        - vendorId
+        - accessToken
+        - refreshToken
+      type: object
+      properties:
+        isvId:
+          type: string
+        locationId:
+          type: string
+        tenetId:
+          type: string
+        vendorId:
+          type: string
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+          
+  examples:
+    Valid_200_PartnerCredentialResponse:
+      value:
+        isvId: '3454254545'
+        locationId: 'AASC'
+        tenetId: '3243423323'
+        vendorId: 'sfdsafsfs'
+
+    PartnerCredentialRequest:
+      value:
+        isvId: '3454254545'
+        locationId: 'AASC'
+        tenetId: '3243423323'
+        vendorId: 'sfdsafsfs'
+
+  responses:
+    201Created:
+      description: The credential details were successfully stored
+
+    400BadRequest:
+      description: The request made to the service, was not valid, please check and retry.
+
+    500InternalServerError:
+      description: The server encounted an error whilst processing the request.
+      

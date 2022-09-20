@@ -1,0 +1,27 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: partner-credentials-service
+  data:
+    mongodb:
+      uri: mongodb://Wayne:test@localhost:27017/config
+  config:
+    import: "vault://"
+    enabled: false
+  cloud:
+    vault:
+      token: 00000000-0000-0000-0000-000000000000
+      scheme: http
+      kv:
+        enabled: true
+
+app:
+  encryption-service: credentials
+
+logging:
+  level:
+    ROOT: DEBUG
+    org.springframework.cloud.config: TRACE
+debug: true
