@@ -9,11 +9,7 @@ import org.springframework.data.annotation.Id;
 public class PartnerCredentialDocument {
     @Id
     private String customerId;
-
     private String isvId;
     private String locationId;
-    private String tenetId;
-    private String accessToken;
-    private String refreshToken;
-    private String clientId;
+    private String sensitiveData;
 }

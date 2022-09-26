@@ -3,10 +3,13 @@ package com.bt.marketplace.partnercredentials.service;
 import com.bt.marketplace.partnercredentials.model.PartnerCredentialDocument;
 import com.bt.marketplace.partnercredentials.model.PartnerCredentialRequest;
 import com.bt.marketplace.partnercredentials.model.PartnerCredentialResponse;
+import com.bt.marketplace.partnercredentials.model.SensitiveData;
 import com.bt.marketplace.partnercredentials.repository.CredentialRepository;
 import com.bt.marketplace.partnercredentials.service.encryption.EncryptionService;
+import com.bt.marketplace.partnercredentials.service.utils.DocumentHelper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -25,14 +28,22 @@ public class CredentialServiceImpl implements PartnerCredentialService {
 
     private PartnerCredentialResponse createCredentialResponse(PartnerCredentialDocument document) {
         PartnerCredentialResponse response = null;
+        SensitiveData sensitiveData = null;
         try {
+
+            if(document.getSensitiveData() != null ) {
+                sensitiveData =DocumentHelper.convertToSensitiveData(encryptionService.decrypt(document.getSensitiveData()));
+            } else {
+                throw new RuntimeException("Invalid sensitive data");
+            }
+
             response = PartnerCredentialResponse.builder()
-                    .accessToken(encryptionService.decrypt(document.getAccessToken()))
-                    .refreshToken(encryptionService.decrypt(document.getRefreshToken()))
-                    .tenetId(encryptionService.decrypt(document.getTenetId()))
+                    .accessToken(sensitiveData.getAccessToken())
+                    .refreshToken(sensitiveData.getRefreshToken())
+                    .tenetId(sensitiveData.getTenetId())
                     .isvId(document.getIsvId())
                     .locationId(document.getLocationId())
-                    .clientId(encryptionService.decrypt(document.getClientId()))
+                    .clientId(sensitiveData.getClientId())
                     .customerId(document.getCustomerId())
                     .build();
         }catch (Exception e) {
@@ -43,14 +54,18 @@ public class CredentialServiceImpl implements PartnerCredentialService {
 
     public void saveCredentials(PartnerCredentialRequest request) {
         try {
+            SensitiveData data = SensitiveData.builder()
+                    .accessToken(request.getAccessToken())
+                    .refreshToken(request.getRefreshToken())
+                    .tenetId(request.getTenetId())
+                    .clientId(request.getClientId())
+                    .build();
+
             PartnerCredentialDocument document = PartnerCredentialDocument.builder()
                     .customerId(request.getCustomerId())
                     .isvId(request.getIsvId())
                     .locationId(request.getLocationId())
-                    .tenetId(encryptionService.encrypt(request.getTenetId()))
-                    .accessToken(encryptionService.encrypt(request.getAccessToken()))
-                    .refreshToken(encryptionService.encrypt(request.getRefreshToken()))
-                    .clientId(encryptionService.encrypt(request.getClientId()))
+                    .sensitiveData(encryptionService.encrypt(DocumentHelper.convertToString(data)))
                     .build();
             repository.save(document);
 
