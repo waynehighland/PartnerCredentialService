@@ -13,4 +13,5 @@ public class PartnerCredentialRequest {
     private String refreshToken;
     private String customerId;
     private String clientId;
+    private String testId;
 }

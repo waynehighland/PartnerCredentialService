@@ -30,4 +30,9 @@ public class VaultEncryptionService implements EncryptionService {
         log.info("Cipher text:" + cipherText + " plain:" + plainText);
         return plainText;
     }
+
+    @Override
+    public void rotate() {
+        vaultTemplate.opsForTransit().rotate(config.getKey());
+    }
 }

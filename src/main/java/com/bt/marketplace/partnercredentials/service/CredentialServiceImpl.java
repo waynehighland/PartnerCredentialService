@@ -31,8 +31,8 @@ public class CredentialServiceImpl implements PartnerCredentialService {
         SensitiveData sensitiveData = null;
         try {
 
-            if(document.getSensitiveData() != null ) {
-                sensitiveData =DocumentHelper.convertToSensitiveData(encryptionService.decrypt(document.getSensitiveData()));
+            if (document.getSensitive() != null) {
+                sensitiveData = DocumentHelper.convertToSensitiveData(encryptionService.decrypt(document.getSensitive()));
             } else {
                 throw new RuntimeException("Invalid sensitive data");
             }
@@ -45,8 +45,9 @@ public class CredentialServiceImpl implements PartnerCredentialService {
                     .locationId(document.getLocationId())
                     .clientId(sensitiveData.getClientId())
                     .customerId(document.getCustomerId())
+                    .testId(sensitiveData.getTestId())
                     .build();
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return response;
@@ -59,18 +60,23 @@ public class CredentialServiceImpl implements PartnerCredentialService {
                     .refreshToken(request.getRefreshToken())
                     .tenetId(request.getTenetId())
                     .clientId(request.getClientId())
+                    .testId((request.getTestId()))
                     .build();
 
             PartnerCredentialDocument document = PartnerCredentialDocument.builder()
                     .customerId(request.getCustomerId())
                     .isvId(request.getIsvId())
                     .locationId(request.getLocationId())
-                    .sensitiveData(encryptionService.encrypt(DocumentHelper.convertToString(data)))
+                    .sensitive(encryptionService.encrypt(DocumentHelper.convertToJsonForEncryption(data)))
                     .build();
             repository.save(document);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void rotate() {
+        encryptionService.rotate();
     }
 }

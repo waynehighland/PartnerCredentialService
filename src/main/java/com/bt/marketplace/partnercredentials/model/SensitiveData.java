@@ -18,14 +18,18 @@ public class SensitiveData {
     private String clientId;
     private String tenetId;
 
+    private String testId;
+
     @JsonCreator
     public SensitiveData(@JsonProperty("accessToken") String accessToken,
                          @JsonProperty("refreshToken") String refreshToken,
                          @JsonProperty("clientId") String clientId,
-                         @JsonProperty("tenetId") String tenetId ) {
+                         @JsonProperty("tenetId") String tenetId,
+                         @JsonProperty("testId") String testId) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.clientId = clientId;
         this.tenetId = tenetId;
+        this.testId =testId;
     }
 }

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class DocumentHelper {
-    public static String convertToString(SensitiveData data)  {
+    public static String convertToJsonForEncryption(SensitiveData data)  {
         String response = null;
         ObjectMapper mapper = getObjectMapper();
         try {
@@ -13,7 +13,11 @@ public class DocumentHelper {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-        return response;
+        return removeUnwantedCharactersForEncryption(response);
+    }
+
+    private static String removeUnwantedCharactersForEncryption(String jsonString) {
+        return jsonString.replaceAll("[\\n\\r\\t]","");
     }
 
     private static ObjectMapper getObjectMapper() {

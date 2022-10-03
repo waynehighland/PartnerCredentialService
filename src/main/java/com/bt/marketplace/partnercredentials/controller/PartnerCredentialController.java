@@ -27,5 +27,11 @@ public class PartnerCredentialController {
     PartnerCredentialResponse getPartnerCredentialDetails(@PathVariable(required = true) String customerId) {
         return service.getCredentialDetails(customerId);
     }
+
+    @PostMapping("/key/rotate")
+    @ResponseStatus(HttpStatus.OK)
+    void rotateKeys() {
+        service.rotate();
+    }
 }
 

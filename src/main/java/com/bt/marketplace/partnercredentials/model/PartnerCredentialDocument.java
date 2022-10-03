@@ -11,5 +11,5 @@ public class PartnerCredentialDocument {
     private String customerId;
     private String isvId;
     private String locationId;
-    private String sensitiveData;
+    private String sensitive;
 }

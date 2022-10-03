@@ -6,4 +6,6 @@ import com.bt.marketplace.partnercredentials.model.PartnerCredentialResponse;
 public interface PartnerCredentialService {
     PartnerCredentialResponse getCredentialDetails(String customerId);
     void saveCredentials(PartnerCredentialRequest request);
+
+    void rotate();
 }
