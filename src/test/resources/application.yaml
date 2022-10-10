@@ -1,0 +1,15 @@
+dsp:
+  oauth:
+    jwt:
+      public-key: |
+        -----BEGIN PUBLIC KEY-----
+        MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoc1f/Y+ir3rXeKTwcPUT
+        RbFB+kMESkN/mh559C5buAYm64+A36dY1C9QogFI7iHtDqoPyd7qTAOVt0FmiRKm
+        N2jwBkKJR2y3Pt2Jq+c2DaXu22pIh7SiGXrjZZ49efxCSXUXp0tBtTOTB9IlXPNN
+        6F5dULb1MqiUlTZhs5aHsMGt38+QFupczyiFj1YRlqlNU1NZ58FiC1F26eaJ55Pe
+        h978zgkSCjSGaBsMUSOIXjLoXL68pqGpsQUM/s7oNfHlwZMDY4kxNTmVGyQgcqWf
+        kmf6+wLoQqXxCW0OQzLwUtJgnriw2+I/bnr0tLVYcyJ+6ZaMZxkhVzqrCToqEghU
+        OQIDAQAB
+        -----END PUBLIC KEY-----
+APP_NAME: test
+GROUP_NAME: test

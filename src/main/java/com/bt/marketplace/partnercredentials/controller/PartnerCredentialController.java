@@ -17,7 +17,7 @@ public class PartnerCredentialController {
     private final PartnerCredentialService service;
 
     @PostMapping("/credentials")
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     void postPartnerCredentialDetails(@Valid @RequestBody PartnerCredentialRequest request) {
         service.saveCredentials(request);
     }
@@ -26,12 +26,6 @@ public class PartnerCredentialController {
     @ResponseStatus(HttpStatus.OK)
     PartnerCredentialResponse getPartnerCredentialDetails(@PathVariable(required = true) String customerId) {
         return service.getCredentialDetails(customerId);
-    }
-
-    @PostMapping("/key/rotate")
-    @ResponseStatus(HttpStatus.OK)
-    void rotateKeys() {
-        service.rotate();
     }
 }
 

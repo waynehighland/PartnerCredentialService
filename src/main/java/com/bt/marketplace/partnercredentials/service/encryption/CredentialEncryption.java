@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 @Slf4j
@@ -56,10 +57,5 @@ public class CredentialEncryption implements EncryptionService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public void rotate() {
-
     }
 }

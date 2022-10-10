@@ -2,6 +2,8 @@ package com.bt.marketplace.partnercredentials.service.encryption;
 
 import com.bt.marketplace.partnercredentials.config.VaultConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.vault.core.VaultTemplate;
 import org.springframework.vault.core.VaultTransitOperations;
 
@@ -18,7 +20,7 @@ public class VaultEncryptionService implements EncryptionService {
     @Override
     public String encrypt(String plainText) {
         VaultTransitOperations transitOperations = vaultTemplate.opsForTransit();
-        String cipherText = transitOperations.encrypt(config.getKey(), plainText);
+        String cipherText = transitOperations.encrypt("my-key", plainText);
         log.info("Current text:" + plainText + " cipher:" + cipherText);
         return cipherText;
     }
@@ -26,13 +28,8 @@ public class VaultEncryptionService implements EncryptionService {
     @Override
     public String decrypt(String cipherText) {
         VaultTransitOperations transitOperations = vaultTemplate.opsForTransit();
-        String plainText = transitOperations.decrypt(config.getKey(), cipherText);
+        String plainText = transitOperations.decrypt("my-key", cipherText);
         log.info("Cipher text:" + cipherText + " plain:" + plainText);
         return plainText;
-    }
-
-    @Override
-    public void rotate() {
-        vaultTemplate.opsForTransit().rotate(config.getKey());
     }
 }

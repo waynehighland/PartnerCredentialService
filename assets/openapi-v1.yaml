@@ -1,0 +1,163 @@
+openapi: 3.0.1
+info:
+  title: Partner Credentials Service
+  description: |-
+    This service provides ability to store and retrieve partner credential details.
+
+    This API service, allows partners to store fulfillment credential and to retrieve this information.
+  version: v1
+servers:
+  - url: http://localhost:8080/v1/partner-credential-service
+paths:
+  /v1/partner-credential/store:
+    post:
+      tags:
+        - partner-credential-controller
+      operationId: postPartnerCredentialDetails
+      description: |-
+        This endpoint allows partners credential details to be stored and retrieved at a later time.
+        
+        All sensitive data will be encrypted before being stored.
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PartnerCredentialRequest'
+            examples:
+              validRequest:
+                $ref: '#/components/examples/ValidPartnerCredentialRequest'
+              invalidRequest:
+                $ref: '#/components/examples/InvalidPartnerCredentialRequest'
+        required: true
+      responses:
+        200:
+          $ref: '#/components/responses/200_OK_Response'
+        400:
+          $ref: '#/components/responses/400_Bad_Request'
+        500:
+          $ref: '#/components/responses/500_Internal_Server_Error'
+
+  /v1/partner-credential/store/{customerId}/{isvId}:
+    get:
+      tags:
+        - partner-credential-controller
+      operationId: getPartnerCredentialData
+      description: |-
+        This endpoint allows partner credentials to be returned for a specific customerId, isvId.
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: isvId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartnerCredentialResponse'
+              examples:
+                getPartnerCredentials:
+                  $ref: '#/components/examples/Valid_Get_200_PartnerCredentialResponse'
+
+components:
+  schemas:
+    PartnerCredentialRequest:
+      required:
+        - customerId
+        - isvId
+        - credentials
+      type: object
+      properties:
+        customerId:
+          type: string
+        isvId:
+          type: string
+        credentials:
+          type: object
+          properties:
+            tenetId:
+              type: string
+            userId:
+              type: string
+            organisationSecrets:
+              $ref : '#/components/schemas/OrganisationSecrets.java'
+
+    PartnerCredentialResponse:
+      required:
+        - customerId
+        - isvId
+        - credentials
+      type: object
+      properties:
+        customerId:
+          type: string
+        isvId:
+          type: string
+        locationId:
+          type: string
+        organisationSecrets:
+          $ref : '#/components/schemas/OrganisationSecrets.java'
+
+    OrganisationSecrets:
+      required:
+        - accessToken
+        - refreshToken
+        - clientId
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        clientId:
+          type: string
+
+  examples:
+    Valid_Get_200_PartnerCredentialResponse:
+      value:
+        tenetId: '3dc7e565-e722-4567-9723-d3d7aad6f35a'
+        userId: '507f1f77bcf86cd79943777'
+        organisationSecrets:
+          clientSecret: 'jkncxvt6wgniunvznxnttcpbnyh2gnhgs'
+          clientId: '9a2c27ac-65fc-46a4'
+          accessToken: 'EAAAEJEBYTM-VW7mcy79SVS-ZXN7f6tnozmi_WpX1CiQxh'
+
+    ValidPartnerCredentialRequest:
+      value:
+        customerId: '507f1f77bcf86cd799439011'
+        isvId: '62748e7db10201a0182e6443'
+        credentials:
+          tenetId: '3dc7e565-e722-4567-9723-d3d7aad6f35a'
+          userId: '507f1f77bcf86cd79943777'
+          organisationSecrets:
+            clientSecret: 'jkncxvt6wgniunvznxnttcpbnyh2gnhgs'
+            clientId: '9a2c27ac-65fc-46a4'
+            accessToken: 'EAAAEJEBYTM-VW7mcy79SVS-ZXN7f6tnozmi_WpX1CiQxh'
+
+    InvalidPartnerCredentialRequest:
+      value:
+        credentials:
+          tenetId: '3dc7e565-e722-4567-9723-d3d7aad6f35a'
+          userId: '507f1f77bcf86cd79943777'
+          organisationSecrets:
+            clientSecret: 'jkncxvt6wgniunvznxnttcpbnyh2gnhgs'
+            clientId: '9a2c27ac-65fc-46a4'
+            accessToken: 'EAAAEJEBYTM-VW7mcy79SVS-ZXN7f6tnozmi_WpX1CiQxh'
+
+  responses:
+    200_OK_Response:
+      description: The credential details were successfully stored, empty body response
+
+    400_Bad_Request:
+      description: The request made to the service, was not valid, please check and retry.
+
+    500_Internal_Server_Error:
+      description: The server encounted an error whilst processing the request.

@@ -1,0 +1,4 @@
+# dsp:
+#   oauth:
+#     jwt:
+#       additional-claims-url: http://wiremock:9021/userinfo

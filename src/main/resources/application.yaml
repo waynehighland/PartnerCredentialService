@@ -18,7 +18,7 @@ spring:
         enabled: true
 
 app:
-  encryption-service: vault
+  encryption-service: credentials
 
 logging:
   level:
