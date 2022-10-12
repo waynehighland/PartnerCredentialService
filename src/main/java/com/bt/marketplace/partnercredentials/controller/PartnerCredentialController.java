@@ -10,22 +10,22 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/v1/partner")
+@RequestMapping("/v1/partner-credentials")
 @AllArgsConstructor
 public class PartnerCredentialController {
-
     private final PartnerCredentialService service;
 
-    @PostMapping("/credentials")
+    @PostMapping("/store")
     @ResponseStatus(HttpStatus.OK)
     void postPartnerCredentialDetails(@Valid @RequestBody PartnerCredentialRequest request) {
         service.saveCredentials(request);
     }
 
-    @GetMapping("/credentials/{customerId}")
+    @GetMapping("/store/{customerId}/{isvId}")
     @ResponseStatus(HttpStatus.OK)
-    PartnerCredentialResponse getPartnerCredentialDetails(@PathVariable(required = true) String customerId) {
-        return service.getCredentialDetails(customerId);
+    PartnerCredentialResponse getPartnerCredentialDetails(@PathVariable(required = true) String customerId,
+                                                          @PathVariable(required = true) String isvId) {
+        return service.getCredentialDetails(customerId,isvId);
     }
 }
 

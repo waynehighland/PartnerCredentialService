@@ -88,7 +88,7 @@ components:
             userId:
               type: string
             organisationSecrets:
-              $ref : '#/components/schemas/OrganisationSecrets.java'
+              $ref : '#/components/schemas/OrganisationSecrets'
 
     PartnerCredentialResponse:
       required:
@@ -104,7 +104,7 @@ components:
         locationId:
           type: string
         organisationSecrets:
-          $ref : '#/components/schemas/OrganisationSecrets.java'
+          $ref : '#/components/schemas/OrganisationSecrets'
 
     OrganisationSecrets:
       required:
@@ -119,6 +119,25 @@ components:
           type: string
         clientId:
           type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+
+
+    Error:
+      type: object
+      properties:
+        field:
+          type: string
+          example: 'customerId'
+        message:
+          type: string
+          example: 'Must not be empty'
 
   examples:
     Valid_Get_200_PartnerCredentialResponse:
@@ -154,10 +173,14 @@ components:
 
   responses:
     200_OK_Response:
-      description: The credential details were successfully stored, empty body response
+      description: The credential details were successfully stored.
 
     400_Bad_Request:
       description: The request made to the service, was not valid, please check and retry.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
 
     500_Internal_Server_Error:
       description: The server encounted an error whilst processing the request.

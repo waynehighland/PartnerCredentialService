@@ -1,0 +1,9 @@
+{
+  "errors" : [
+    {
+      "code" : "24",
+      "message" : "Invalid body failed",
+      "description" : ""
+    }
+  ]
+}

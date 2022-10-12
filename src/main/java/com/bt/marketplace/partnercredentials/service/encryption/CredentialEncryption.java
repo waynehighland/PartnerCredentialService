@@ -19,12 +19,15 @@ public class CredentialEncryption implements EncryptionService {
     }
     public static int TAG_BIT_LENGTH = 128;
 
+    private String additionalData;
+    private String key;
+
     @Override
     public String encrypt(String plainText) {
         log.info("PlainText being encrypted: " + plainText);
         byte[] iv = AESUtil.generateIv();
-        byte[] aadData = vault.getAad().getBytes();
-        SecretKeySpec keySpec = new SecretKeySpec(Base64.getDecoder().decode(vault.getKey()), "AES");
+        byte[] aadData = additionalData.getBytes();
+        SecretKeySpec keySpec = new SecretKeySpec(Base64.getDecoder().decode(key), "AES");
         GCMParameterSpec gcmParamSpec = new GCMParameterSpec(TAG_BIT_LENGTH, iv) ;
 
         String cipherText = null;
@@ -47,7 +50,7 @@ public class CredentialEncryption implements EncryptionService {
         if ( cipherText == null ) return cipherText;
 
         DecryptCipher decryptCipher = new DecryptCipher(cipherText);
-        SecretKeySpec keySpec = new SecretKeySpec(Base64.getDecoder().decode(vault.getKey()), "AES");
+        SecretKeySpec keySpec = new SecretKeySpec(Base64.getDecoder().decode(key), "AES");
         GCMParameterSpec gcmParamSpec = new GCMParameterSpec(TAG_BIT_LENGTH, decryptCipher.getInitVector());
 
         String plainText = null;

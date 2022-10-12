@@ -1,13 +1,20 @@
 package com.bt.marketplace.partnercredentials.service;
 
-import com.bt.marketplace.partnercredentials.model.PartnerCredentialDocument;
+import com.bt.marketplace.partnercredentials.domain.EncryptedInfo;
+import com.bt.marketplace.partnercredentials.domain.PartnerCredentialDocument;
+import com.bt.marketplace.partnercredentials.exceptions.DocumentNotFoundException;
+import com.bt.marketplace.partnercredentials.exceptions.ProcessingException;
+import com.bt.marketplace.partnercredentials.model.Credentials;
+import com.bt.marketplace.partnercredentials.model.OrganisationSecrets;
 import com.bt.marketplace.partnercredentials.model.PartnerCredentialRequest;
 import com.bt.marketplace.partnercredentials.model.PartnerCredentialResponse;
 import com.bt.marketplace.partnercredentials.repository.CredentialRepository;
 import com.bt.marketplace.partnercredentials.service.encryption.EncryptionService;
+import com.bt.marketplace.partnercredentials.service.utils.JsonHelper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.vault.VaultException;
 
 import java.util.Optional;
 
@@ -18,44 +25,64 @@ public class CredentialServiceImpl implements PartnerCredentialService {
     private final EncryptionService encryptionService;
     private final CredentialRepository repository;
 
-    public PartnerCredentialResponse getCredentialDetails(String customerId) {
-        Optional<PartnerCredentialDocument> document = repository.findById(customerId);
-        return document.isPresent() ? createCredentialResponse(document.get()) : null;
-    }
-
-    private PartnerCredentialResponse createCredentialResponse(PartnerCredentialDocument document) {
-        PartnerCredentialResponse response = null;
-        try {
-            response = PartnerCredentialResponse.builder()
-                    .accessToken(encryptionService.decrypt(document.getAccessToken()))
-                    .refreshToken(encryptionService.decrypt(document.getRefreshToken()))
-                    .tenetId(encryptionService.decrypt(document.getTenetId()))
-                    .isvId(document.getIsvId())
-                    .locationId(document.getLocationId())
-                    .clientId(encryptionService.decrypt(document.getClientId()))
-                    .customerId(document.getCustomerId())
-                    .build();
-        }catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return response;
+    public PartnerCredentialResponse getCredentialDetails(String customerId, String isvId)  {
+        Optional<PartnerCredentialDocument> document = repository.findByCustomerIdAndIsvId(customerId, isvId);
+        return document.isPresent() ? createResponse(document.get()) : null;
     }
 
     public void saveCredentials(PartnerCredentialRequest request) {
         try {
-            PartnerCredentialDocument document = PartnerCredentialDocument.builder()
-                    .customerId(request.getCustomerId())
-                    .isvId(request.getIsvId())
-                    .locationId(request.getLocationId())
-                    .tenetId(encryptionService.encrypt(request.getTenetId()))
-                    .accessToken(encryptionService.encrypt(request.getAccessToken()))
-                    .refreshToken(encryptionService.encrypt(request.getRefreshToken()))
-                    .clientId(encryptionService.encrypt(request.getClientId()))
-                    .build();
-            repository.save(document);
+            JsonHelper jsonHelper = new JsonHelper();
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            Credentials creds = request.getCredentials();
+            OrganisationSecrets secrets = creds.getOrganisationSecrets();
+
+            EncryptedInfo encryptedInfo = EncryptedInfo.builder()
+                    .clientSecret(secrets.getClientSecret())
+                    .accessToken(secrets.getAccessToken())
+                    .clientId(secrets.getClientId())
+                    .refreshToken(secrets.getRefreshToken())
+                    .build();
+
+            repository.save(PartnerCredentialDocument.builder()
+                             .customerId(request.getCustomerId())
+                             .isvId(request.getIsvId())
+                             .tenetId(creds.getTenetId())
+                             .userId(creds.getUserId())
+                             .encrypted(encryptionService.encrypt(jsonHelper.convertToJson(encryptedInfo)))
+                             .build());
+
+        } catch (VaultException exception) {
+            log.error("Error using the vault encryption service: " + exception.getLocalizedMessage());
+            throw new ProcessingException(exception);
         }
+    }
+
+
+    private PartnerCredentialResponse createResponse(PartnerCredentialDocument document) {
+        if (document == null) {
+            return null;
+        }
+
+        EncryptedInfo sensitive = JsonHelper.convertToObject(encryptionService.decrypt(document.getEncrypted()));
+        PartnerCredentialResponse response = null;
+        try {
+            response = PartnerCredentialResponse.builder()
+                    .customerId(document.getCustomerId())
+                    .isvId(document.getIsvId())
+                    .credentials(Credentials.builder()
+                    .userId(document.getUserId())
+                    .tenetId(document.getTenetId())
+                    .organisationSecrets( OrganisationSecrets.builder()
+                    .accessToken(sensitive.getAccessToken())
+                    .clientId(sensitive.getClientId())
+                    .refreshToken(sensitive.getRefreshToken())
+                    .build()).build())
+                    .build();
+        }catch (Exception e) {
+            log.error("Unable to decrypt response: " + e.getMessage());
+            throw new ProcessingException(e);
+        }
+        return response;
     }
 }

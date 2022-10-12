@@ -7,10 +7,6 @@ import lombok.Data;
 @Data
 public class PartnerCredentialResponse {
     private String isvId;
-    private String locationId;
-    private String tenetId;
-    private String accessToken;
-    private String refreshToken;
     private String customerId;
-    private String clientId;
+    private Credentials credentials;
 }

@@ -20,7 +20,7 @@ public class VaultEncryptionService implements EncryptionService {
     @Override
     public String encrypt(String plainText) {
         VaultTransitOperations transitOperations = vaultTemplate.opsForTransit();
-        String cipherText = transitOperations.encrypt("my-key", plainText);
+        String cipherText = transitOperations.encrypt(config.getEncryptionKey(), plainText);
         log.info("Current text:" + plainText + " cipher:" + cipherText);
         return cipherText;
     }
@@ -28,7 +28,7 @@ public class VaultEncryptionService implements EncryptionService {
     @Override
     public String decrypt(String cipherText) {
         VaultTransitOperations transitOperations = vaultTemplate.opsForTransit();
-        String plainText = transitOperations.decrypt("my-key", cipherText);
+        String plainText = transitOperations.decrypt(config.getEncryptionKey(), cipherText);
         log.info("Cipher text:" + cipherText + " plain:" + plainText);
         return plainText;
     }

@@ -1,2 +1,5 @@
-spring.cloud.vault:
-  enabled: false
+APP_NAME: partner-credentials-service
+
+spring:
+  application:
+    name: ${APP_NAME}
